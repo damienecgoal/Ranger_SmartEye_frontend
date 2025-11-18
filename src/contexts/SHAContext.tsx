@@ -1,4 +1,5 @@
 import React, { createContext, useEffect, useReducer, useRef } from 'react';
+import { createHash } from 'crypto';
 
 // reducer - state management
 import { LOGIN, LOGOUT } from 'contexts/auth-reducer/actions';
@@ -31,6 +32,11 @@ const arrayBufferToHexString = (buffer: ArrayBuffer): string => {
 };
 
 const sha256UsernamePwd = async (username: string, password: string): Promise<string> => {
+  // Check if crypto.subtle is available
+  if (typeof crypto === 'undefined' || !crypto.subtle) {
+    // throw new Error('Web Crypto API not available in this environment');
+  }
+  
   const encoder = new TextEncoder();
   const data = encoder.encode(`${username}_${password}`);
   const hash = await crypto.subtle.digest('SHA-256', data);
@@ -42,6 +48,11 @@ const sha256AddTimestamp = async (sha256UPStr: string, username: string): Promis
   password_encrypted: string;
   timestamp: number;
 }> => {
+  // Check if crypto.subtle is available
+  if (typeof crypto === 'undefined' || !crypto.subtle) {
+    throw new Error('Web Crypto API not available in this environment');
+  }
+  
   const timestamp = Math.floor(Date.now() / 1000);
   const encoder = new TextEncoder();
   const data = encoder.encode(`${sha256UPStr}_${timestamp}`);
@@ -49,6 +60,7 @@ const sha256AddTimestamp = async (sha256UPStr: string, username: string): Promis
   const password_encrypted = 'SHA256_T:' + arrayBufferToHexString(hash);
   return { username, password_encrypted, timestamp };
 };
+
 
 const generateSHA256Timestamp = async (username: string, password: string) => {
   const sha256UPStr = await sha256UsernamePwd(username, password);

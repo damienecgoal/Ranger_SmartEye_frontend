@@ -50,8 +50,8 @@ export default function AuthLogin({ forgot }: { forgot?: string }) {
     <>
       <Formik
         initialValues={{
-          email: 'admin',
-          password: '12345678',
+          email: import.meta.env.VITE_SHA_USERNAME || 'admin',
+          password:import.meta.env.VITE_SHA_PASSWORD || '123456',
           submit: null
         }}
         // validationSchema={Yup.object().shape({
